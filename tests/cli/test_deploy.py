@@ -40,7 +40,7 @@ def project_dir(tmp_path):
 
 
 @pytest.fixture
-def deploymeny_with_apply(tmp_path):
+def deployment_with_apply(tmp_path):
     async def test_apply_override_cli(self, project_dir, orion_client, work_pool):
         # Create a deployment
         deployment = {
