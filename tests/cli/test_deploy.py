@@ -73,8 +73,6 @@ def deployment_with_apply(tmp_path):
         )
         assert deployment.name == "test-name"
         assert deployment.work_pool_name == work_pool.name
-        # assert deployment.version == "1.0.0"
-        # assert deployment.tags == ["foo-bar"]
         assert deployment.infra_overrides == {"env": {"EXTRA_PIP_PACKAGES": "s3fs"}}
 
 
