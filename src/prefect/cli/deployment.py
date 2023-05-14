@@ -1024,7 +1024,11 @@ async def build(
     infra_overrides = {}
     for override in overrides or []:
         key, value = override.split("=", 1)
-        infra_overrides[key] = value
+        override_key, sub_key = key.split(".", 1)
+        if override_key in infra_overrides:
+            infra_overrides[override_key].update({sub_key: value})
+        else:
+            infra_overrides[override_key] = {sub_key: value}
 
     if infra_block:
         infrastructure = await Block.load(infra_block)
