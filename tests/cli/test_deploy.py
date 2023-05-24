@@ -40,43 +40,6 @@ def project_dir(tmp_path):
 
 
 @pytest.fixture
-def deployment_with_apply(tmp_path):
-    async def test_apply_override_cli(self, project_dir, orion_client, work_pool):
-        # Create a deployment
-        deployment = {
-            "deployments": [
-                {
-                    "name": "test-name-1",
-                }
-            ]
-        }
-
-        # Save the deployment to deployment.yaml
-        with open("deployment.yaml", "w") as f:
-            yaml.dump(deployment, f)
-
-        # Deploy the deployment with a name
-        await run_sync_in_worker_thread(
-            invoke_and_assert,
-            command=(
-                "deployment build ./flows/hello.py:my_flow -n test-name -p"
-                f" {work_pool.name} --apply --override env.EXTRA_PIP_PACKAGES=s3fs"
-            ),
-            expected_code=0,
-            expected_output_contains=[
-                ""  # "Deployment 'An important name/test-name' successfully created with id"
-            ],
-        )
-
-        deployment = await orion_client.read_deployment_by_name(
-            "An important name/test-name"
-        )
-        assert deployment.name == "test-name"
-        assert deployment.work_pool_name == work_pool.name
-        assert deployment.infra_overrides == {"env": {"EXTRA_PIP_PACKAGES": "s3fs"}}
-
-
-@pytest.fixture
 def project_dir_with_single_deployment_format(tmp_path):
     original_dir = os.getcwd()
     if sys.version_info >= (3, 8):

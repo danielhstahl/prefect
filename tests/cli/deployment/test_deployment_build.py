@@ -1101,7 +1101,40 @@ class TestInfraOverrides:
         )
 
         build_kwargs = mock_build_from_flow.call_args.kwargs
-        assert build_kwargs["infra_overrides"] == {"my.dog": "1", "your.cat": "test"}
+        assert build_kwargs["infra_overrides"] == {
+            "my": {"dog": "1"},
+            "your": {"cat": "test"},
+        }
+
+    @pytest.mark.filterwarnings("ignore:does not have upload capabilities")
+    def test_overrides_called_correctly_with_deeply_nested(
+        self, patch_import, tmp_path, mock_build_from_flow
+    ):
+        name = "TEST"
+        output_path = str(tmp_path / "test.yaml")
+        entrypoint = "fake-path.py:fn"
+        overrides = ["my.dog=1", "your.cat=test", "your.dog.puppy=test2"]
+        cmd = [
+            "deployment",
+            "build",
+            entrypoint,
+            "-n",
+            name,
+            "-o",
+            output_path,
+        ]
+        for override in overrides:
+            cmd += ["--override", override]
+        invoke_and_assert(
+            cmd,
+            expected_code=0,
+        )
+
+        build_kwargs = mock_build_from_flow.call_args.kwargs
+        assert build_kwargs["infra_overrides"] == {
+            "my": {"dog": "1"},
+            "your": {"cat": "test", "dog": {"puppy": "test2"}},
+        }
 
     @pytest.mark.filterwarnings("ignore:does not have upload capabilities")
     def test_overrides_default_is_empty(

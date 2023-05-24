@@ -43,7 +43,7 @@ from prefect.server.schemas.schedules import (
 from prefect.settings import PREFECT_UI_URL
 from prefect.states import Scheduled
 from prefect.utilities.asyncutils import run_sync_in_worker_thread
-from prefect.utilities.collections import listrepr
+from prefect.utilities.collections import flatdict_to_dict, listrepr
 from prefect.utilities.dispatch import get_registry_for_type, lookup_type
 from prefect.utilities.filesystem import create_default_ignore_file
 
@@ -1021,14 +1021,12 @@ async def build(
     except Exception as exc:
         exit_with_error(exc)
     app.console.print(f"Found flow {flow.name!r}", style="green")
-    infra_overrides = {}
+
+    flat_infra_overrides = {}
     for override in overrides or []:
         key, value = override.split("=", 1)
-        override_key, sub_key = key.split(".", 1)
-        if override_key in infra_overrides:
-            infra_overrides[override_key].update({sub_key: value})
-        else:
-            infra_overrides[override_key] = {sub_key: value}
+        flat_infra_overrides[tuple(key.split("."))] = value
+    infra_overrides = flatdict_to_dict(flat_infra_overrides)
 
     if infra_block:
         infrastructure = await Block.load(infra_block)
